@@ -7,28 +7,27 @@ const CartItem = ({ onContinueShopping }) => {
   const cart = useSelector(state => state.cart.items);
   const dispatch = useDispatch();
 
-  // Calculate total amount for all products in the cart
   const calculateTotalAmount = () => {
-    const total = cart.reduce((sum, item) => {
+    let total = 0;
+    cart.forEach(item => {
       let price = 0;
       if (typeof item.cost === 'string') {
-        // If it's a string, remove non-numeric characters (like '$') and parse it.
         price = parseFloat(item.cost.replace(/[^0-9.]/g, ''));
       } else if (typeof item.cost === 'number') {
         price = item.cost;
       }
 
       if (!isNaN(price)) {
-        return sum + price * item.quantity;
+        total += price * item.quantity;
       }
-      return sum;
-    }, 0); // The initial value for the sum is 0.
+    });
     return total.toFixed(2);
   };
 
   const handleContinueShopping = (e) => {
     onContinueShopping(e);
   };
+  
   const handleCheckoutShopping = (e) => {
     alert('Functionality to be added for future reference');
   };
@@ -46,23 +45,20 @@ const CartItem = ({ onContinueShopping }) => {
   };
 
   const handleRemove = (item) => {
-    // Dispatches the removeItem action to completely remove the item from the cart
     dispatch(removeItem({ name: item.name }));
   };
 
-  // Calculate total cost based on quantity for an item
   const calculateTotalCost = (item) => {
-    // The cost can be a string like "$15" or a number like 15.
-    // We need to handle both cases to avoid calculation errors.
     let price = 0;
+
     if (typeof item.cost === 'string') {
-      // If it's a string, remove non-numeric characters (like '$') and parse it.
-      price = parseFloat(item.cost.replace(/[^0-9.]/g, ''));
+      price = parseFloat(item.cost.substring(1));
+      if (isNaN(price)) {
+        price = parseFloat(item.cost.replace(/[^0-9.]/g, ''));
+      }
     } else if (typeof item.cost === 'number') {
-      // If it's already a number, just use it.
-      price = item.cost;
-    }
-    // Calculates the total cost for a single item type
+      price = item.cost;    }
+      
     return !isNaN(price) ? (price * item.quantity).toFixed(2) : '0.00';
   };
 
